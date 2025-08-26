@@ -16,16 +16,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.learn.notes.data.model.Note
+import com.learn.notes.viewmodel.NotesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesScreen(
+    notesViewModel: NotesViewModel,
     navController: NavController,
-    notes: List<Note>,
-    onDeleteNote: (Note) -> Unit,
 ) {
 
+    val notes = notesViewModel.notes
 
     Scaffold(
         topBar = {
@@ -56,7 +56,7 @@ fun NotesScreen(
                             navController.navigate("add_note?noteId=${note.id}")
                         },
                         onDelete = {
-                            onDeleteNote(note)
+                            notesViewModel.deleteNote(note.id)
                         }
                     )
                 }

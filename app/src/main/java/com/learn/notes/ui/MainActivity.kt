@@ -10,20 +10,17 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.learn.notes.data.model.Note
 import com.learn.notes.ui.screens.AddNoteScreen
 import com.learn.notes.ui.screens.NotesScreen
 import com.learn.notes.ui.theme.NotesTheme
+import com.learn.notes.viewmodel.NotesViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,8 +28,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NotesTheme {
+
+                val viewModel: NotesViewModel = viewModel()
+
                 val navController = rememberNavController()
-                var notes by remember { mutableStateOf(emptyList<Note>()) }
+
                 Scaffold(
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
@@ -49,11 +49,8 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable("note_list") {
                             NotesScreen(
+                                notesViewModel = viewModel,
                                 navController = navController,
-                                notes = notes,
-                                onDeleteNote = { noteToDelete ->
-                                    notes = notes.filter { it.id != noteToDelete.id }
-                                }
                             )
                         }
                         composable(
@@ -67,17 +64,9 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             val noteId = backStackEntry.arguments?.getInt("noteId") ?: -1
                             AddNoteScreen(
+                                notesViewModel = viewModel,
                                 navController = navController,
-                                notes = notes,
                                 noteId = noteId.toLong(),
-                                onAddNote = { note ->
-                                    notes = notes + note
-                                },
-                                onUpdateNote = { updated ->
-                                    notes = notes.map { note ->
-                                        if (note.id == updated.id) updated else note
-                                    }
-                                }
                             )
                         }
                     }
