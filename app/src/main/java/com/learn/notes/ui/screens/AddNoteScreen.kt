@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.learn.notes.data.model.Note
+import com.learn.notes.viewmodel.NotesViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -44,12 +45,12 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddNoteScreen(
+    notesViewModel: NotesViewModel,
     navController: NavController,
-    notes: List<Note>,
     noteId: Long = -1L,
-    onAddNote: (Note) -> Unit,
-    onUpdateNote: (Note) -> Unit
 ) {
+    val notes = notesViewModel.notes
+
     val context = LocalContext.current
     val todayCalendar = Calendar.getInstance()
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -173,9 +174,9 @@ fun AddNoteScreen(
                             )
 
                             if (existingNote != null) {
-                                onUpdateNote(note)
+                                notesViewModel.updateNote(note)
                             } else {
-                                onAddNote(note)
+                                notesViewModel.addNote(note)
                             }
                         }
                         navController.popBackStack()
