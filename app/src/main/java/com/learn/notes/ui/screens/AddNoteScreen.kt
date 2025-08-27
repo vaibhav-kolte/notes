@@ -49,17 +49,12 @@ fun AddNoteScreen(
     navController: NavController,
     noteId: Long = -1L,
 ) {
-    val notes = notesViewModel.notes
 
     val context = LocalContext.current
     val todayCalendar = Calendar.getInstance()
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    val existingNote: Note? = if (noteId != -1L) {
-        notes.find { it.id == noteId }
-    } else {
-        null
-    }
+    val existingNote = notesViewModel.getNoteById(noteId)
 
 
     var title by remember { mutableStateOf(TextFieldValue("")) }
@@ -167,7 +162,7 @@ fun AddNoteScreen(
                             }
 
                             val note = Note(
-                                id = existingNote?.id ?: (notes.size + 1L),
+                                id = existingNote?.id ?: (notesViewModel.getAllNote().size + 1L),
                                 title = title.text,
                                 content = description.text,
                                 timestamp = parsedDate

@@ -1,23 +1,25 @@
 package com.learn.notes.viewmodel
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.learn.notes.data.model.Note
+import com.learn.notes.data.model.NotesRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 
-class NotesViewModel : ViewModel() {
-    private val _notes = mutableStateListOf<Note>()
-    val notes: List<Note> = _notes
+class NotesViewModel(private val repository: NotesRepository = NotesRepository()) : ViewModel() {
 
-    fun addNote(note: Note) {
-        _notes.add(note)
-    }
+    val notes: StateFlow<List<Note>> = repository.notesFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun updateNote(note: Note) {
-        val index = _notes.indexOfFirst { it.id == note.id }
-        if (index != -1) _notes[index] = note
-    }
+    fun getAllNote() = repository.getAllNotes()
 
-    fun deleteNote(id: Long) {
-        _notes.removeAll { it.id == id }
-    }
+    fun addNote(note: Note) = repository.addNote(note)
+
+    fun updateNote(note: Note) = repository.updateNote(note)
+
+    fun deleteNote(id: Long) = repository.deleteNote(id)
+
+    fun getNoteById(id:Long) = repository.getNoteById(id)
 }
