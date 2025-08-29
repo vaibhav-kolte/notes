@@ -1,5 +1,6 @@
 package com.learn.notes.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,25 +12,30 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.learn.notes.data.model.DatabaseProvider
+import com.learn.notes.data.model.NotesRepository
 import com.learn.notes.ui.screens.AddNoteScreen
 import com.learn.notes.ui.screens.NotesScreen
 import com.learn.notes.ui.theme.NotesTheme
 import com.learn.notes.viewmodel.NotesViewModel
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("ViewModelConstructorInComposable")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             NotesTheme {
-
-                val viewModel: NotesViewModel = viewModel()
+                val context = LocalContext.current
+                val db = DatabaseProvider.getDatabase(context)
+                val repository = NotesRepository(db.noteDao())
+                val viewModel = NotesViewModel(repository)
 
                 val navController = rememberNavController()
 

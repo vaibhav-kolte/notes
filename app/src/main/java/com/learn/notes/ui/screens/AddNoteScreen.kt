@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,8 +54,11 @@ fun AddNoteScreen(
     val context = LocalContext.current
     val todayCalendar = Calendar.getInstance()
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-    val existingNote = notesViewModel.getNoteById(noteId)
+    var existingNote by remember { mutableStateOf<Note?>(null) }
+    LaunchedEffect(noteId) {
+        existingNote = notesViewModel.getNoteById(noteId)
+    }
+    val notes by notesViewModel.notes.collectAsState()
 
 
     var title by remember { mutableStateOf(TextFieldValue("")) }
@@ -162,7 +166,7 @@ fun AddNoteScreen(
                             }
 
                             val note = Note(
-                                id = existingNote?.id ?: (notesViewModel.getAllNote().size + 1L),
+                                id = existingNote?.id ?: (notes.size + 1L),
                                 title = title.text,
                                 content = description.text,
                                 timestamp = parsedDate

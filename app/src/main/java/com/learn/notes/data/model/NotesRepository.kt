@@ -1,39 +1,25 @@
 package com.learn.notes.data.model
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
 
-class NotesRepository {
+class NotesRepository(private val noteDao: NoteDao) {
 
-    // In-memory notes storage
-    private val notesList = mutableListOf<Note>()
+    // Expose notes as Flow from Room (auto-updates when DB changes)
+    val notesFlow: Flow<List<Note>> = noteDao.getAllNotes()
 
-    // Expose notes as Flow (good for Compose & ViewModel observation)
-    private val _notesFlow = MutableStateFlow<List<Note>>(emptyList())
-    val notesFlow: StateFlow<List<Note>> = _notesFlow.asStateFlow()
-
-    fun getAllNotes(): List<Note> = _notesFlow.value
-
-    fun addNote(note: Note) {
-        notesList.add(note)
-        _notesFlow.value = notesList.toList() // emit new state
+    suspend fun addNote(note: Note) {
+        noteDao.insert(note)
     }
 
-    fun updateNote(note: Note) {
-        val index = notesList.indexOfFirst { it.id == note.id }
-        if (index != -1) {
-            notesList[index] = note
-            _notesFlow.value = notesList.toList()
-        }
+    suspend fun updateNote(note: Note) {
+        noteDao.update(note)
     }
 
-    fun deleteNote(id: Long) {
-        notesList.removeAll { it.id == id }
-        _notesFlow.value = notesList.toList()
+    suspend fun deleteNote(id: Long) {
+        noteDao.deleteById(id)
     }
 
-    fun getNoteById(id: Long): Note? {
-        return notesList.find { it.id == id }
+    suspend fun getNoteById(id: Long): Note? {
+        return noteDao.getNoteById(id)
     }
 }
